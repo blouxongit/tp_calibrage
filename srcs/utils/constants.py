@@ -1,0 +1,1 @@
+CHESSBOARD_SIZE = (8, 11)
