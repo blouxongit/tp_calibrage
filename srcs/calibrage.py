@@ -1,20 +1,20 @@
-import numpy as np
 import cv2
+import numpy as np
 from matplotlib import pyplot as plt
-from typing import List, Union, Dict, Tuple
-from PIL import Image
 
+from srcs.utils.constants import CHESSBOARD_SIZE, FOCAL_LENGTH, P_POINT_X, P_POINT_Y
 from srcs.utils.utils import (
-    read_image,
     get_A_matrix,
-    get_parameters_from_L,
     get_angles_from_matrix,
     get_B_matrix,
-    get_R_matrix,
+    get_coords_from_world_2_image,
+    get_extrinsics,
     get_intrinsics,
-    get_extrinsics, get_transformation_matrix,
+    get_parameters_from_L,
+    get_R_matrix,
+    get_transformation_matrix,
+    read_image,
 )
-from srcs.utils.constants import CHESSBOARD_SIZE, P_POINT_X, P_POINT_Y, FOCAL_LENGTH
 
 SAVE_IMAGES = False
 
@@ -82,19 +82,15 @@ def calibrate():
 
     M_int = get_intrinsics(FOCAL_LENGTH, s_1, s_2, P_POINT_X, P_POINT_Y)
     M_ext = get_extrinsics(rotation_matrix=rotation_matrix, translation_vector=np.array([o1c, o2c, o3c]))
-    M = get_transformation_matrix(M_intrinsics=M_int, M_extrinsics=M_ext)
+    M_transfo = get_transformation_matrix(M_intrinsics=M_int, M_extrinsics=M_ext)
 
-    coords_to_check_mm = np.c_[coord_mm[:88, :], np.ones((88,1))]
-    coords = (M@coords_to_check_mm.T).T
+    coords_to_check = get_coords_from_world_2_image(coord_mm_1, M_transfo)
 
-    for i in range(88):
-        coords[i] = coords[i]/coords[i,-1]
-
-    X = coords[:,0]
-    Y = coords[:,1]
+    X = coords_to_check[:, 0]
+    Y = coords_to_check[:, 1]
 
     im = plt.imread("../data/mire_1.png")
-    plt.plot(X,Y, 's')
+    plt.plot(Y, X, 'r+', markersize=12)
     plt.imshow(im)
     plt.show()
     debug = True

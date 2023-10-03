@@ -66,7 +66,7 @@ def get_parameters_from_L(L: np.array):
 def get_angles_from_matrix(M):
     yaw = -np.arctan(M[1, 2] / M[2, 2])
     pitch = -np.arctan(M[0, 1] / M[0, 0])
-    roll = -np.arctan(M[0, 2] / (-M[1, 2] * np.sin(yaw) + M[2, 2] * np.cos(yaw)))
+    roll = np.arctan(M[0, 2] / (-M[1, 2] * np.sin(yaw) + M[2, 2] * np.cos(yaw)))
     return yaw, pitch, roll
 
 
@@ -113,3 +113,17 @@ def get_intrinsics(f, s_1, s_2, i_1, i_2):
 
 def get_transformation_matrix(M_intrinsics, M_extrinsics):
     return M_intrinsics @ M_extrinsics
+
+
+def get_world_2_camera_coords(coords_world, M_transfo):
+    return (M_transfo @ (np.c_[coords_world, np.ones((np.shape(coords_world)[0], 1))]).T).T
+
+
+def get_camera_2_image_coords(camera_coords):
+    alpha_matrix = np.c_[camera_coords[:,-1], camera_coords[:,-1], camera_coords[:,-1]]
+    return np.divide(camera_coords, alpha_matrix)
+
+
+def get_coords_from_world_2_image(coords_mm, M_transfo):
+    world_2_camera_coords = get_world_2_camera_coords(coords_mm, M_transfo)
+    return get_camera_2_image_coords(world_2_camera_coords)
