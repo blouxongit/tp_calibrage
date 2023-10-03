@@ -1,0 +1,19 @@
+numpy 
+scipy
+plotly
+matplotlib
+opencv-python
+notebook
+PyWavelets
+itk
+itk-rtk>=2.4.1
+jupyter
+pandas
+
+# TP DL/ML
+scikit-image 
+scikit-learn
+h5py
+torch
+torchvision
+
