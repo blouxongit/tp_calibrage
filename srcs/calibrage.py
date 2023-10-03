@@ -39,14 +39,12 @@ def calibrate():
         20 * np.arange(0, CHESSBOARD_SIZE[0]), 20 * np.arange(0, CHESSBOARD_SIZE[1])
     )
     coord_mm_1 = np.array([np.ravel(coord_mm_x_1), np.ravel(coord_mm_y_1), np.zeros_like(np.ravel(coord_mm_x_1))]).T
-
     coord_mm_y_2, coord_mm_x_2 = np.meshgrid(
         20 * np.arange(0, CHESSBOARD_SIZE[0]), 20 * np.arange(0, CHESSBOARD_SIZE[1])
     )
     coord_mm_2 = np.array(
         [np.ravel(coord_mm_x_2), np.ravel(coord_mm_y_2), -100 * np.ones_like(np.ravel(coord_mm_x_2))]
     ).T
-
     coord_mm = np.concatenate((coord_mm_1, coord_mm_2), axis=0)
 
     A = get_A_matrix(coord_px, coord_mm, P_POINT_X, P_POINT_Y)
@@ -84,16 +82,15 @@ def calibrate():
     M_ext = get_extrinsics(rotation_matrix=rotation_matrix, translation_vector=np.array([o1c, o2c, o3c]))
     M_transfo = get_transformation_matrix(M_intrinsics=M_int, M_extrinsics=M_ext)
 
-    coords_to_check = get_coords_from_world_2_image(coord_mm_1, M_transfo)
+    coords_to_check = get_coords_from_world_2_image(coord_mm_2, M_transfo)
 
     X = coords_to_check[:, 0]
     Y = coords_to_check[:, 1]
 
-    im = plt.imread("../data/mire_1.png")
-    plt.plot(Y, X, 'r+', markersize=12)
+    im = plt.imread("../data/mire_2.png")
+    plt.plot(Y, X, "r+", markersize=8)
     plt.imshow(im)
     plt.show()
-    debug = True
 
 
 if __name__ == "__main__":

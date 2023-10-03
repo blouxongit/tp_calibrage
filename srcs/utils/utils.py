@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -39,7 +39,7 @@ def get_A_matrix(u: np.array, x: np.array, pp_x: float, pp_y) -> np.array:
     return A
 
 
-def get_parameters_from_L(L: np.array):
+def get_parameters_from_L(L: np.array) -> Tuple[float, float, float, np.array]:
     # In our case o2c is the same sign as o2c_abs
     o2c = 1 / np.linalg.norm(L[-3:])
     beta = o2c * np.linalg.norm(L[:3])
@@ -63,14 +63,14 @@ def get_parameters_from_L(L: np.array):
     return o2c, beta, o1c, rotation_matrix
 
 
-def get_angles_from_matrix(M):
+def get_angles_from_matrix(M: np.array) -> Tuple[float, float, float]:
     yaw = -np.arctan(M[1, 2] / M[2, 2])
     pitch = -np.arctan(M[0, 1] / M[0, 0])
     roll = np.arctan(M[0, 2] / (-M[1, 2] * np.sin(yaw) + M[2, 2] * np.cos(yaw)))
     return yaw, pitch, roll
 
 
-def get_B_matrix(u, x, pp_y, r_21, r_22, r_23, o2c):
+def get_B_matrix(u: np.array, x: np.array, pp_y: float, r_21: float, r_22: float, r_23: float, o2c: float) -> np.array:
     U = np.array(
         [
             u[:, 1] - pp_y,
@@ -83,7 +83,7 @@ def get_B_matrix(u, x, pp_y, r_21, r_22, r_23, o2c):
     return np.c_[U, construct]
 
 
-def get_R_matrix(u, x, pp_y, r_31, r_32, r_33):
+def get_R_matrix(u: np.array, x: np.array, pp_y: float, r_31: float, r_32: float, r_33: float) -> np.array:
     U = np.array(
         [
             -(u[:, 1] - pp_y),
@@ -94,14 +94,14 @@ def get_R_matrix(u, x, pp_y, r_31, r_32, r_33):
     return np.multiply(U, construct)
 
 
-def get_extrinsics(rotation_matrix, translation_vector):
+def get_extrinsics(rotation_matrix: np.array, translation_vector: np.array) -> np.array:
     M = np.eye(4)
     M[:3, :3] = rotation_matrix
     M[:3, -1] = translation_vector
     return M
 
 
-def get_intrinsics(f, s_1, s_2, i_1, i_2):
+def get_intrinsics(f: float, s_1: float, s_2: float, i_1: float, i_2: float) -> np.array:
     return np.array(
         [
             [f / s_1, 0, i_1, 0],
@@ -111,19 +111,19 @@ def get_intrinsics(f, s_1, s_2, i_1, i_2):
     )
 
 
-def get_transformation_matrix(M_intrinsics, M_extrinsics):
+def get_transformation_matrix(M_intrinsics: np.array, M_extrinsics: np.array) -> np.array:
     return M_intrinsics @ M_extrinsics
 
 
-def get_world_2_camera_coords(coords_world, M_transfo):
+def get_world_2_camera_coords(coords_world: np.array, M_transfo: np.array) -> np.array:
     return (M_transfo @ (np.c_[coords_world, np.ones((np.shape(coords_world)[0], 1))]).T).T
 
 
-def get_camera_2_image_coords(camera_coords):
-    alpha_matrix = np.c_[camera_coords[:,-1], camera_coords[:,-1], camera_coords[:,-1]]
+def get_camera_2_image_coords(camera_coords: np.array) -> np.array:
+    alpha_matrix = np.c_[camera_coords[:, -1], camera_coords[:, -1], camera_coords[:, -1]]
     return np.divide(camera_coords, alpha_matrix)
 
 
-def get_coords_from_world_2_image(coords_mm, M_transfo):
+def get_coords_from_world_2_image(coords_mm: np.array, M_transfo: np.array) -> np.array:
     world_2_camera_coords = get_world_2_camera_coords(coords_mm, M_transfo)
     return get_camera_2_image_coords(world_2_camera_coords)
