@@ -1,4 +1,4 @@
-# TP Calibrage module du même nom // Raphaël COEZ
+# TP Calibrage module du même nom - Raphaël COEZ
 
 # Imports
 import cv2
@@ -64,7 +64,7 @@ def main() :
     R1 = np.array([r11,r12,r13])
     R2 = np.array([r21,r22,r23])
     #R3 = np.cross(R1,R2)
-    print(A)
+    print(oc2)
 
 # Open img
 def open_img(path_img) :
@@ -90,7 +90,6 @@ def build_coord_mm(Nx, Ny, box_size, val) :
             x = 0
     return coord_mm
     
-
 # Draw corners
 def draw_corners(img, img_corners, Nx, Ny) :
     cv2.drawChessboardCorners(img,patternSize = [Ny,Nx], corners = img_corners, patternWasFound=True)
