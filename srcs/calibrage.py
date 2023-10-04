@@ -79,16 +79,16 @@ def calibrate():
     s_1 = s_2 / beta
 
     M_int = get_intrinsics(FOCAL_LENGTH, s_1, s_2, P_POINT_X, P_POINT_Y)
-    M_ext = get_extrinsics(rotation_matrix=rotation_matrix, translation_vector=np.array([o1c, o2c, o3c]))
+    M_ext = get_extrinsics(rotation_matrix=rotation_matrix, translation_vector=np.array([o1c, o2c, o3c], dtype=object))
     M_transfo = get_transformation_matrix(M_intrinsics=M_int, M_extrinsics=M_ext)
 
     coords_to_check = get_coords_from_world_2_image(coord_mm_2, M_transfo)
 
-    X = coords_to_check[:, 0]
-    Y = coords_to_check[:, 1]
+    X_im = coords_to_check[:, 1]
+    Y_im = coords_to_check[:, 0]
 
     im = plt.imread("../data/mire_2.png")
-    plt.plot(Y, X, "r+", markersize=8)
+    plt.plot(X_im, Y_im, "r+", markersize=8)
     plt.imshow(im)
     plt.show()
 

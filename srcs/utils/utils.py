@@ -35,14 +35,12 @@ def get_A_matrix(u: np.array, x: np.array, pp_x: float, pp_y) -> np.array:
         ]
     ).T
 
-    A = np.multiply(U, X)
-    return A
+    return np.multiply(U, X)
 
 
 def get_parameters_from_L(L: np.array) -> Tuple[float, float, float, np.array]:
-    # In our case o2c is the same sign as o2c_abs
-    o2c = 1 / np.linalg.norm(L[-3:])
-    beta = o2c * np.linalg.norm(L[:3])
+    o2c = -1 / np.linalg.norm(L[-3:])
+    beta = abs(o2c) * np.linalg.norm(L[:3])
     o1c = L[3] * o2c / beta
 
     r_11 = L[0] * o2c / beta
@@ -51,7 +49,7 @@ def get_parameters_from_L(L: np.array) -> Tuple[float, float, float, np.array]:
     r_21 = L[4] * o2c
     r_22 = L[5] * o2c
     r_23 = L[6] * o2c
-    r_31, r_32, r_33 = np.cross(np.array([r_11, r_12, r_13]), np.array([r_21, r_22, r_23]))
+    r_31, r_32, r_33 = np.cross(np.array([r_21, r_22, r_23]), np.array([r_11, r_12, r_13]))
 
     rotation_matrix = np.array(
         [
@@ -107,7 +105,8 @@ def get_intrinsics(f: float, s_1: float, s_2: float, i_1: float, i_2: float) -> 
             [f / s_1, 0, i_1, 0],
             [0, f / s_2, i_2, 0],
             [0, 0, 1, 0],
-        ]
+        ],
+        dtype=object,
     )
 
 
