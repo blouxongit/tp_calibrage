@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-from srcs.utils.constants import CHESSBOARD_SIZE, FOCAL_LENGTH, P_POINT_X, P_POINT_Y
+from srcs.utils.constants import CHESSBOARD_SIZE, FOCAL_LENGTH, P_POINT_X, P_POINT_Y, SAVE_IMAGES
 from srcs.utils.utils import (
     get_A_matrix,
     get_angles_from_matrix,
@@ -15,8 +15,6 @@ from srcs.utils.utils import (
     get_transformation_matrix,
     read_image,
 )
-
-SAVE_IMAGES = False
 
 
 def calibrate():
@@ -31,20 +29,22 @@ def calibrate():
         cv2.imwrite("../data/chessboard_corners_1.png", image_1)
         cv2.imwrite("../data/chessboard_corners_2.png", image_2)
 
-    coord_px_1 = np.flip(np.squeeze(chessboard_corners_1))
-    coord_px_2 = np.flip(np.squeeze(chessboard_corners_2))
+    coord_px_1 = np.fliplr(np.flip(np.squeeze(chessboard_corners_1)))
+    coord_px_2 = np.fliplr(np.flip(np.squeeze(chessboard_corners_2)))
     coord_px = np.concatenate((coord_px_1, coord_px_2), axis=0)
 
     coord_mm_y_1, coord_mm_x_1 = np.meshgrid(
         20 * np.arange(0, CHESSBOARD_SIZE[0]), 20 * np.arange(0, CHESSBOARD_SIZE[1])
     )
-    coord_mm_1 = np.array([np.ravel(coord_mm_x_1), np.ravel(coord_mm_y_1), np.zeros_like(np.ravel(coord_mm_x_1))]).T
+    coord_mm_1 = np.fliplr(
+        np.array([np.ravel(coord_mm_x_1), np.ravel(coord_mm_y_1), np.zeros_like(np.ravel(coord_mm_x_1))]).T
+    )
     coord_mm_y_2, coord_mm_x_2 = np.meshgrid(
         20 * np.arange(0, CHESSBOARD_SIZE[0]), 20 * np.arange(0, CHESSBOARD_SIZE[1])
     )
-    coord_mm_2 = np.array(
-        [np.ravel(coord_mm_x_2), np.ravel(coord_mm_y_2), -100 * np.ones_like(np.ravel(coord_mm_x_2))]
-    ).T
+    coord_mm_2 = np.fliplr(
+        np.array([np.ravel(coord_mm_x_2), np.ravel(coord_mm_y_2), -100 * np.ones_like(np.ravel(coord_mm_x_2))]).T
+    )
     coord_mm = np.concatenate((coord_mm_1, coord_mm_2), axis=0)
 
     A = get_A_matrix(coord_px, coord_mm, P_POINT_X, P_POINT_Y)
@@ -53,7 +53,7 @@ def calibrate():
 
     L = A_pseudoinv @ U.T
     o2c, beta, o1c, rotation_matrix = get_parameters_from_L(np.ravel(L))
-    yaw, pitch, roll = get_angles_from_matrix(rotation_matrix)
+    yaw, pitch, roll = np.degrees(get_angles_from_matrix(rotation_matrix))
 
     B = get_B_matrix(
         coord_px,
@@ -82,13 +82,12 @@ def calibrate():
     M_ext = get_extrinsics(rotation_matrix=rotation_matrix, translation_vector=np.array([o1c, o2c, o3c], dtype=object))
     M_transfo = get_transformation_matrix(M_intrinsics=M_int, M_extrinsics=M_ext)
 
-    coords_to_check = get_coords_from_world_2_image(coord_mm_2, M_transfo)
-
+    coords_to_check = get_coords_from_world_2_image(coord_mm_1, M_transfo)
     X_im = coords_to_check[:, 1]
     Y_im = coords_to_check[:, 0]
 
-    im = plt.imread("../data/mire_2.png")
-    plt.plot(X_im, Y_im, "r+", markersize=8)
+    im = plt.imread("../data/mire_1.png")
+    plt.plot(Y_im, X_im, "r+", markersize=8)
     plt.imshow(im)
     plt.show()
 
