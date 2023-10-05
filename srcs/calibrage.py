@@ -88,8 +88,14 @@ def calibrate():
     X_im = coords_to_check[:, 0]
     Y_im = coords_to_check[:, 1]
 
+    coord_px_true = coord_px[88:, :]
+    coord_px_tested = np.c_[X_im, Y_im]
+
+    MSE = np.mean(np.sum((coord_px_tested - coord_px_true) ** 2, axis=1))
+
     im = plt.imread("../data/mire_2.png")
-    plt.plot(X_im, Y_im, "r+", markersize=8)
+    plt.plot(X_im, Y_im, "r.", markersize=3)
+    plt.plot(coord_px_true[:,0], coord_px_true[:,1], "b.", markersize=3)
     plt.imshow(im)
     plt.show()
 
