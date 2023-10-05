@@ -49,7 +49,7 @@ def get_parameters_from_L(L: np.array) -> Tuple[float, float, float, np.array]:
     r_21 = L[4] * o2c
     r_22 = L[5] * o2c
     r_23 = L[6] * o2c
-    r_31, r_32, r_33 = np.cross(np.array([r_21, r_22, r_23]), np.array([r_11, r_12, r_13]))
+    r_31, r_32, r_33 = np.cross(np.array([r_11, r_12, r_13]), np.array([r_21, r_22, r_23]))
 
     rotation_matrix = np.array(
         [
