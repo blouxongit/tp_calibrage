@@ -1,8 +1,9 @@
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def read_image(path_image):
@@ -126,3 +127,16 @@ def get_camera_2_image_coords(camera_coords: np.array) -> np.array:
 def get_coords_from_world_2_image(coords_mm: np.array, M_transfo: np.array) -> np.array:
     world_2_camera_coords = get_world_2_camera_coords(coords_mm, M_transfo)
     return get_camera_2_image_coords(world_2_camera_coords)
+
+
+def plot_points_on_image(
+    image_path: Union[str, Path], coords_to_check: np.array, coords_groundtruth: np.array = np.array([])
+):
+    im = plt.imread(image_path)
+    plt.plot(coords_to_check[:, 0], coords_to_check[:, 1], "r+", markersize=8)
+    plt.legend(["coords reconstructed with matrix calibation"])
+    if coords_groundtruth.size > 0:
+        plt.plot(coords_groundtruth[:, 0], coords_to_check[:, 1], "b.", markersize=3)
+        plt.legend(["coords reconstructed with matrix calibation", "coords groundtruth from opencv"])
+    plt.imshow(im)
+    plt.show()

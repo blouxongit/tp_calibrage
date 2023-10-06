@@ -13,6 +13,7 @@ from srcs.utils.utils import (
     get_parameters_from_L,
     get_R_matrix,
     get_transformation_matrix,
+    plot_points_on_image,
     read_image,
 )
 
@@ -93,11 +94,9 @@ def calibrate():
 
     MSE = np.mean(np.sum((coord_px_tested - coord_px_true) ** 2, axis=1))
 
-    im = plt.imread("../data/mire_2.png")
-    plt.plot(X_im, Y_im, "r.", markersize=3)
-    plt.plot(coord_px_true[:,0], coord_px_true[:,1], "b.", markersize=3)
-    plt.imshow(im)
-    plt.show()
+    plot_points_on_image(
+        image_path="../data/mire_2.png", coords_to_check=coords_to_check, coords_groundtruth=coord_px_true
+    )
 
 
 if __name__ == "__main__":
